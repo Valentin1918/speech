@@ -8,6 +8,7 @@ export type PlayingState = "initialized" | "playing" | "paused" | "ended";
 
 export type SpeechEngineState = {
   utterance: SpeechSynthesisUtterance | null;
+  playbackState: PlayingState;
   config: {
     rate: number;
     volume: number;
@@ -25,12 +26,18 @@ export type SpeechEngine = ReturnType<typeof createSpeechEngine>;
 const createSpeechEngine = (options: SpeechEngineOptions) => {
   const state: SpeechEngineState = {
     utterance: null,
+    playbackState: 'ended',
     config: {
       rate: 1,
       volume: 1,
       voice: window.speechSynthesis.getVoices()[0],
     },
   };
+
+  const onStateUpdate = (playbackState: PlayingState) => {
+    options.onStateUpdate(playbackState);
+    state.playbackState = playbackState;
+  }
 
   window.speechSynthesis.onvoiceschanged = (e) => {
     state.config.voice = speechSynthesis.getVoices()[0];
@@ -44,7 +51,7 @@ const createSpeechEngine = (options: SpeechEngineOptions) => {
     // set up listeners
     utterance.onboundary = (e) => options.onBoundary(e);
     utterance.onend = (e) => {
-      options.onStateUpdate("ended");
+      onStateUpdate("ended");
       options.onEnd(e);
     };
 
@@ -56,18 +63,25 @@ const createSpeechEngine = (options: SpeechEngineOptions) => {
     if (!state.utterance) throw new Error("No active utterance found to play");
     state.utterance.onstart = () => {
       console.log('waiting for onstart')
-      options.onStateUpdate("playing");
+      onStateUpdate("playing");
     };
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(state.utterance);
+
+    if (state.playbackState === 'paused') {
+      onStateUpdate('playing');
+      window.speechSynthesis.resume();
+    } else {
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(state.utterance);
+    }
   };
 
   const pause = () => {
-    options.onStateUpdate("paused");
+    onStateUpdate("paused");
     window.speechSynthesis.pause();
   };
+
   const cancel = () => {
-    options.onStateUpdate("initialized");
+    onStateUpdate("initialized");
     window.speechSynthesis.cancel();
   };
 

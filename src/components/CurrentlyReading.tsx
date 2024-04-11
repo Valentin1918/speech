@@ -1,3 +1,6 @@
+import {PlayingState} from "../lib/speech";
+import '../App.css';
+
 /**
  * Implement the CurrentlyReading component here
  * This component should have the following,
@@ -8,13 +11,37 @@
  * See example.gif for an example of how the component should look like, feel free to style it however you want as long as the testID exists
  */
 export const CurrentlyReading = ({
-  currentWordRange,
   currentSentenceIdx,
+  currentSentenceWordIdx,
   sentences,
+  playbackState,
 }: {
-  currentWordRange: [number, number];
   currentSentenceIdx: number;
+  currentSentenceWordIdx: number;
   sentences: string[];
+  playbackState: PlayingState;
 }) => {
-  return <div data-testid="currently-reading"></div>;
+  if (!sentences.length) return null;
+
+  return (
+    <div data-testid="currently-reading" className={playbackState === 'playing' ? 'currently-reading' : ''}>
+      {sentences.map((sentence, sentenceIndex) => (
+        <p
+          data-testid={sentenceIndex === currentSentenceIdx ? 'current-sentence' : ''}
+          className={sentenceIndex === currentSentenceIdx ? 'current-sentence' : ''}
+          key={`sentence-${sentenceIndex}`}
+        >
+          {sentence.split(' ').map((word, wordIndex) => (
+            <span
+              data-testid={wordIndex === currentSentenceWordIdx ? 'current-word' : ''}
+              className={wordIndex === currentSentenceWordIdx ? 'current-word' : ''}
+              key={`sentence-${sentenceIndex}_word${wordIndex}`}
+            >
+              {`${word} `}
+            </span>
+          ))}
+        </p>
+      ))}
+    </div>
+  );
 };

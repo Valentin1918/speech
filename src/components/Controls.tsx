@@ -10,12 +10,31 @@ import { PlayingState } from '../lib/speech';
 export const Controls = ({
   play,
   pause,
+  stop,
   loadNewContent,
+  playbackState,
 }: {
   play: () => void;
   pause: () => void;
+  stop: () => void;
   loadNewContent: () => void;
-  state: PlayingState;
+  playbackState: PlayingState;
 }) => {
-  return <div></div>;
+  return (
+    <div>
+      {(playbackState === 'playing') ? (
+        <button onClick={pause}>
+          Pause
+        </button>
+      ) : (
+        <button onClick={play}>
+          Play
+        </button>
+      )}
+
+      <button onClick={loadNewContent}>
+        Load new content
+      </button>
+    </div>
+  );
 };

@@ -1,12 +1,8 @@
-.currently-reading { 
-
-}
-
-.currently-reading .currently-reading-text { 
+.currently-reading .current-sentence {
     font-size: 24px;
 }
 
-.currently-reading .currently-reading-text .currentword { 
+.currently-reading .current-sentence .current-word {
     font-size: 24px;
     color: red;
 }
